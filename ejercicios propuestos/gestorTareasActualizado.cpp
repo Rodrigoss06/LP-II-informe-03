@@ -272,7 +272,7 @@ void mostrarMenuTareas()
     cout << "2. Marcar tarea como completada" << endl;
     cout << "3. Eliminar tarea" << endl;
     cout << "4. Mostrar tareas" << endl;
-    cout << "5. Salir " << endl;
+    cout << "5. Salir" << endl;
 }
 
 void mostrarMenuProyectos()
