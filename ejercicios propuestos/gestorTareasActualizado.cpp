@@ -14,6 +14,7 @@ private:
     string responsable;
     string estado;
     vector<string> comentarios;
+    vector<string> archivos;
 
 public:
     Proyecto() {}
@@ -23,7 +24,8 @@ public:
         fechaFin(fechaFin),
         responsable(responsable),
         estado("Pendiente"),
-        comentarios({})
+        comentarios({}),
+        archivos({})
     {};
 
     string getNombre() const { return nombre; }
@@ -33,6 +35,8 @@ public:
     string getResponsable() const { return responsable; }
     string getEstado() const { return estado; }
     vector<string> getComentarios() const { return comentarios; }
+    vector<string> getArchivos() const { return archivos; }
+
 
     void setNombre(const string &nuevoNombre) { nombre = nuevoNombre; }
     void setDescripcion(const string &nuevaDescripcion) { descripcion = nuevaDescripcion; }
@@ -40,7 +44,8 @@ public:
     void setFechaFin(const string &nuevaFechaFin) { fechaFin = nuevaFechaFin; }
     void setResponsable(const string &nuevoResponsable) { responsable = nuevoResponsable; }
     void setEstado(const string &nuevoEstado) { estado = nuevoEstado; }
-    void setComentarios(const vector<string> &nuevoComentario) { comentarios = nuevoComentario; }
+    void setComentarios(const vector<string> &comentariosActualizados) { comentarios = comentariosActualizados; }
+    void setArchivos(const vector<string> &archivosActualizados) { archivos = archivosActualizados; }
 };
 
 class GestorProyectos
@@ -50,88 +55,83 @@ private:
     vector<string> archivosCompartidos;
 
 public:
-    const vector<string> getArchivos()
-    {
+    const vector<string> getArchivos(){
         return archivosCompartidos;
     }
-    const vector<Proyecto> &obtenerProyectos() const
-    {
+    const vector<Proyecto> &obtenerProyectos() const{
         return proyectos;
     }
 
-    void crearProyecto(string &nombreProyecto, string &descripcion, string &fechaInicio, string &fechaFin, string &responsable)
-    {
+    void crearProyecto(string &nombreProyecto, string &descripcion, string &fechaInicio, string &fechaFin, string &responsable){
         proyectos.emplace_back(nombreProyecto, descripcion, fechaInicio, fechaFin, responsable);
         cout << "Proyecto '" << nombreProyecto << "' creada correctamente." << endl;
     }
-    void eliminarProyecto(const string &nombreProyecto)
-    {
+    void eliminarProyecto(const string &nombreProyecto){
         auto it = find_if(proyectos.begin(), proyectos.end(), [&nombreProyecto](const Proyecto &proyecto)
                           { return proyecto.getNombre() == nombreProyecto; });
 
-        if (it != proyectos.end())
-        {
+        if (it != proyectos.end()){
             proyectos.erase(it);
             cout << "Proyecto '" << nombreProyecto << "' eliminada correctamente." << endl;
         }
-        else
-        {
+        else{
             cout << "La proyecto '" << nombreProyecto << "' no fue encontrada." << endl;
         }
     }
-    void marcarProyectoComoCompletada(const string &nombreProyecto)
-    {
+    void marcarProyectoComoCompletada(const string &nombreProyecto){
         auto it = find_if(proyectos.begin(), proyectos.end(), [&nombreProyecto](const Proyecto &proyecto)
                           { return proyecto.getNombre() == nombreProyecto; });
 
-        if (it != proyectos.end())
-        {
+        if (it != proyectos.end()){
             it->setEstado("Completado");
             cout << "Proyecto '" << nombreProyecto << "' marcada como completada." << endl;
         }
-        else
-        {
+        else{
             cout << "La proyecto '" << nombreProyecto << "' no fue encontrada." << endl;
         }
     }
-    void AgregarComentario(const string nombreProyecto, const string &comentario)
-    {
+    void AgregarComentario(const string nombreProyecto, const string &comentario){
         auto it = find_if(proyectos.begin(), proyectos.end(), [&nombreProyecto](const Proyecto &proyecto)
                           { return proyecto.getNombre() == nombreProyecto; });
 
-        if (it != proyectos.end())
-        {
+        if (it != proyectos.end()){
             vector<string> comentarios = it->getComentarios();
             comentarios.push_back(comentario); // Corrección: se agregó el comentario al vector
             it->setComentarios(comentarios);
             cout << "Comentario agregado al proyecto '" << nombreProyecto << "'." << endl;
         }
-        else
-        {
+        else{
             cout << "El proyecto '" << nombreProyecto << "' no fue encontrado." << endl;
         }
     }
-    void compartirArchivos(const string &archivo)
-    {
+    void agregarArchivo(const string nombreProyecto, const string &archivo){
         archivosCompartidos.push_back(archivo);
+        auto it = find_if(proyectos.begin(), proyectos.end(), [&nombreProyecto](const Proyecto &proyecto)
+                          { return proyecto.getNombre() == nombreProyecto; });
+
+        if (it != proyectos.end()){
+            vector<string> archivos = it->getArchivos();
+            archivos.push_back(archivo); // Corrección: se agregó el comentario al vector
+            it->setArchivos(archivos);
+            cout << "Archivo agregado al proyecto '" << nombreProyecto << "'." << endl;
+        }
+        else{
+            cout << "El proyecto '" << nombreProyecto << "' no fue encontrado." << endl;
+        }
     }
 };
 
-class GestorPresentacionProyectos
-{
+class GestorPresentacionProyectos{
 public:
-    virtual void mostrarProyectos(const vector<Proyecto> &proyectos, GestorProyectos &gestor) const = 0;
+    virtual void mostrarProyectos(const vector<Proyecto> &proyectos) const = 0;
     virtual ~GestorPresentacionProyectos() {}
 };
 
-class PresentadorConsolaProyectos : public GestorPresentacionProyectos
-{
+class PresentadorConsolaProyectos : public GestorPresentacionProyectos{
 public:
-    void mostrarProyectos(const vector<Proyecto> &proyectos, GestorProyectos &gestor) const
-    {
+    void mostrarProyectos(const vector<Proyecto> &proyectos) const{
         cout << "Proyectos:" << endl;
-        for (const auto &proyecto : proyectos)
-        {
+        for (const auto &proyecto : proyectos){
             cout << "Nombre: " << proyecto.getNombre() << endl;
             cout << "Descripción: " << proyecto.getDescripcion() << endl;
             cout << "Fecha de inicio: " << proyecto.getFechaInicio() << endl;
@@ -143,14 +143,15 @@ public:
             {
                 cout << comentario << endl;
             }
+            cout << "Archivos: " << endl;
+            for (const auto &archivo : proyecto.getArchivos())
+            {
+                cout << archivo << endl;
+            }
 
             cout << endl;
         }
-        cout << "Archivos compartidos:" << endl;
-        for (const auto &archivo : gestor.getArchivos())
-        {
-            cout << archivo << endl;
-        }
+
     }
 };
 
@@ -280,8 +281,10 @@ void mostrarMenuProyectos()
     cout << "1. Crear proyecto" << endl;
     cout << "2. Marcar proyecto como completado" << endl;
     cout << "3. Eliminar proyecto" << endl;
-    cout << "4. Mostrar proyectos" << endl;
-    cout << "5. Salir" << endl;
+    cout << "4. Comentar proyecto" << endl;
+    cout << "5. Compartir archivos" << endl;
+    cout << "6. Mostrar proyectos y archivos compartidos" << endl;
+    cout << "7. Salir" << endl;
 }
 
 int main()
@@ -501,15 +504,18 @@ int main()
                 }
                 case 5:
                 {
+                    string nombreProyecto;
                     string archivo;
+                    cout << "Ingrese el nombre del proyecto que quiere comentar" << endl;
+                    cin >> nombreProyecto;
                     cout << "Ingrese la ruta del archivo" << endl;
                     cin >> archivo;
-                    gestorProyectos.compartirArchivos(archivo);
+                    gestorProyectos.agregarArchivo(nombreProyecto,archivo);
                     break;
                 }
                 case 6:
                 {
-                    presentadorProyectos.mostrarProyectos(gestorProyectos.obtenerProyectos(), gestorProyectos);
+                    presentadorProyectos.mostrarProyectos(gestorProyectos.obtenerProyectos());
                     break;
                 }
                 case 7:
